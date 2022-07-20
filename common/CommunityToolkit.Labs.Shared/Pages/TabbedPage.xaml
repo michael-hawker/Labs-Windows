@@ -20,7 +20,8 @@
         <DataTemplate x:Key="DocumentTemplate"
                       x:DataType="metadata:ToolkitFrontMatter">
             <muxc:TabViewItem Header="{x:Bind Title}"
-                              IconSource="{StaticResource DocumentIcon}">
+                              IconSource="{StaticResource DocumentIcon}"
+                              IsClosable="False">
                 <renderer:ToolkitDocumentationRenderer Metadata="{Binding}" />
             </muxc:TabViewItem>
         </DataTemplate>
@@ -28,11 +29,11 @@
         <DataTemplate x:Key="SampleTemplate"
                       x:DataType="metadata:ToolkitSampleMetadata">
             <muxc:TabViewItem Header="{x:Bind DisplayName}"
-                              IconSource="{StaticResource SampleIcon}">
+                              IconSource="{StaticResource SampleIcon}"
+                              IsClosable="False">
                 <ScrollViewer Padding="16">
                     <renderer:ToolkitSampleRenderer Metadata="{Binding}" />
                 </ScrollViewer>
-
             </muxc:TabViewItem>
         </DataTemplate>
 
