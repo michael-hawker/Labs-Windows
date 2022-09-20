@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Adorners.Tests.WinAppSdk (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Adorners.Tests.WinAppSdk (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
