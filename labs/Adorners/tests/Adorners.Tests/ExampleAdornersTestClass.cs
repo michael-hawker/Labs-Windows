@@ -56,7 +56,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     public void SimpleUIExamplePageTest(ExampleAdornersTestPage page)
     {
         // You can use the Toolkit Visual Tree helpers here to find the component by type or name:
-        var component = page.FindDescendant<Adorners_ClassicBinding>();
+        var component = page.FindDescendant<Adorners>();
 
         Assert.IsNotNull(component);
 
@@ -72,7 +72,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
         // This helper can be used to wait for a rendering pass to complete.
         await CompositionTargetHelper.ExecuteAfterCompositionRenderingAsync(() => { });
 
-        var component = page.FindDescendant<Adorners_ClassicBinding>();
+        var component = page.FindDescendant<Adorners>();
 
         Assert.IsNotNull(component);
     }
@@ -87,7 +87,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     {
         await EnqueueAsync(() =>
         {
-            var component = new Adorners_ClassicBinding();
+            var component = new Adorners();
             Assert.IsNotNull(component);
         });
     }
@@ -99,7 +99,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     {
         await EnqueueAsync(async () =>
         {
-            var component = new Adorners_ClassicBinding();
+            var component = new Adorners();
             Assert.IsNotNull(component);
             Assert.IsFalse(component.IsLoaded);
 
@@ -117,7 +117,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     [LabsUITestMethod]
     public async Task ComplexAsyncLoadUIExampleWithoutDispatcherTest()
     {
-        var component = new Adorners_ClassicBinding();
+        var component = new Adorners();
         Assert.IsNotNull(component);
         Assert.IsFalse(component.IsLoaded);
 

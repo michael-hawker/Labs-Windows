@@ -1,0 +1,16 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+namespace AdornersExperiment.Samples;
+
+[ToolkitSampleBoolOption("IsAdornerVisible", "Is Adorner Visible", true)]
+
+[ToolkitSample(id: nameof(AdornersInfoBadgeSample), "Adorner w/ InfoBadge", description: "A sample for showing how add an infobadge to a component via an Adorner.")]
+public sealed partial class AdornersInfoBadgeSample : Page
+{
+    public AdornersInfoBadgeSample()
+    {
+        this.InitializeComponent();
+    }
+}
