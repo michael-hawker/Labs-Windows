@@ -14,11 +14,11 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     [TestMethod]
     public void SimpleSynchronousExampleTest()
     {
-        var assembly = typeof(Adorners).Assembly;
-        var type = assembly.GetType(typeof(Adorners).FullName ?? string.Empty);
+        var assembly = typeof(AdornerLayer).Assembly;
+        var type = assembly.GetType(typeof(AdornerLayer).FullName ?? string.Empty);
 
         Assert.IsNotNull(type, "Could not find Adorners type.");
-        Assert.AreEqual(typeof(Adorners), type, "Type of Adorners does not match expected type.");
+        Assert.AreEqual(typeof(AdornerLayer), type, "Type of Adorners does not match expected type.");
     }
 
     // If you don't need access to UI objects directly, use this pattern.
@@ -45,7 +45,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     [LabsUITestMethod]
     public void SimpleUIAttributeExampleTest()
     {
-        var component = new Adorners();
+        var component = new AdornerLayer();
         Assert.IsNotNull(component);
     }
 
@@ -56,7 +56,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     public void SimpleUIExamplePageTest(ExampleAdornersTestPage page)
     {
         // You can use the Toolkit Visual Tree helpers here to find the component by type or name:
-        var component = page.FindDescendant<Adorners>();
+        var component = page.FindDescendant<AdornerLayer>();
 
         Assert.IsNotNull(component);
 
@@ -72,7 +72,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
         // This helper can be used to wait for a rendering pass to complete.
         await CompositionTargetHelper.ExecuteAfterCompositionRenderingAsync(() => { });
 
-        var component = page.FindDescendant<Adorners>();
+        var component = page.FindDescendant<AdornerLayer>();
 
         Assert.IsNotNull(component);
     }
@@ -87,7 +87,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     {
         await EnqueueAsync(() =>
         {
-            var component = new Adorners();
+            var component = new AdornerLayer();
             Assert.IsNotNull(component);
         });
     }
@@ -99,7 +99,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     {
         await EnqueueAsync(async () =>
         {
-            var component = new Adorners();
+            var component = new AdornerLayer();
             Assert.IsNotNull(component);
             Assert.IsFalse(component.IsLoaded);
 
@@ -117,7 +117,7 @@ public partial class ExampleAdornersTestClass : VisualUITestBase
     [LabsUITestMethod]
     public async Task ComplexAsyncLoadUIExampleWithoutDispatcherTest()
     {
-        var component = new Adorners();
+        var component = new AdornerLayer();
         Assert.IsNotNull(component);
         Assert.IsFalse(component.IsLoaded);
 

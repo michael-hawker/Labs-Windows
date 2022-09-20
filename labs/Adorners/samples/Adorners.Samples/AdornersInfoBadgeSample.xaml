@@ -5,12 +5,28 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:labs="using:CommunityToolkit.Labs.WinUI"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 
-    <StackPanel Spacing="16">
-        <Button>
-            <SymbolIcon Symbol="Mail" HorizontalAlignment="Center"/>
-            <!-- TODO: Insert InfoBadge component via Adorner -->
-        </Button>
-    </StackPanel>
+    <Grid>
+        <StackPanel Spacing="16">
+            <Button>
+                <SymbolIcon Symbol="Mail" HorizontalAlignment="Center"/>
+                <!-- TODO: Insert InfoBadge component via Adorner -->
+                <labs:AdornerLayer.Xaml>
+                    <muxc:InfoBadge Value="5" />
+                </labs:AdornerLayer.Xaml>
+            </Button>
+            <Button>
+                <muxc:InfoBadge Value="5"/>
+            </Button>
+            <Button HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="100" Height="75">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <SymbolIcon Symbol="Mail" HorizontalAlignment="Center"/>
+                    <muxc:InfoBadge Value="5" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                </Grid>
+            </Button>
+        </StackPanel>
+        <labs:AdornerLayer/>
+    </Grid>
 </Page>
