@@ -29,8 +29,8 @@
     <NoWarn>WMC1006;CS8034;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == '$(UwpTargetFramework)'" Include="Microsoft.UI.Xaml" Version="2.7.0" />
-    <PackageReference Condition="'$(TargetFramework)' == '$(WinAppSdkTargetFramework)'" Include="Microsoft.WindowsAppSDK" Version="1.0.3" />
+    <PackageReference Condition="'$(TargetFramework)' == '$(UwpTargetFramework)'" Include="Microsoft.UI.Xaml" Version="2.7.3" />
+    <PackageReference Condition="'$(TargetFramework)' == '$(WinAppSdkTargetFramework)'" Include="Microsoft.WindowsAppSDK" Version="1.2.220902.1-preview1" />
   </ItemGroup>
 
   <ItemGroup>
