@@ -91,16 +91,25 @@ public partial class AdornerLayer : Canvas
         var adornerLayerOrTopMostElement = adornedElement.FindAscendant<FrameworkElement>((element) =>
         {
             lastElement = element;
-            if (element is AdornerLayer)
+            if (element is AdornerLayer) // TODO: Search also for new AdornerDecorator panel...
             {
                 return true;
             }
             else if (element is ScrollViewer scoller)
             {
+                // TODO:
+                //   1. Look down for ScrollContentPresenter (return that)
+                //   2. Below where Grid code is now... Remove Content
+                //   3. Add 'AdornerDecorator' Panel (simple grid-ish thing)
+                //   4. Set content of AdornerDecorator to previously removed content
+                //   5. Return adorner layer of decorator.
+
                 // TODO: This doesn't work 🙁 - While we have easy access to this Grid, it is outside the ScrollContentPresenter
                 // Therefore it doesn't scroll along with the content and the adorner is effectively in absolute position floating above
                 // the scrolling content. Going to investigate how this behaves in WPF before thinking of next approach... Maybe we
                 // need to try manipulating the ScrollContentPresenter content???
+
+                // WPF indeed handles scrolling perfectly, so we need to resolve this insertion scenario into the ScrollContentPresenter
 
                 // TODO: Use BreadthFirst Search w/ Depth Limited?
                 var child = element.FindDescendant<Grid>();
@@ -140,10 +149,7 @@ public partial class AdornerLayer : Canvas
         }
         else
         {
-            // Note: We probably don't need any of this experimental code, as most ScrollViewers (except the Root one)
-            //       have a Grid that we should be able to inject into. We still may want this for the Root ScrollViewer
-            //       and see if we can manipulate it's inner border if we don't find a Grid within it's first couple layers...
-            //       We may have better luck manipulating the Border than the Content of the ScrollViewer itself???
+            // TODO: Need to be checking for ScrollContentPresenter... and try this code again?
 
             // Inject AdornerLayer
             /*if (adornerLayerOrTopMostElement is ScrollViewer scroller) // TODO: Switch?
