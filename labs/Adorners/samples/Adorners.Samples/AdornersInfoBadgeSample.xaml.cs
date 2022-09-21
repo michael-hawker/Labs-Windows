@@ -6,7 +6,7 @@ namespace AdornersExperiment.Samples;
 
 [ToolkitSampleBoolOption("IsAdornerVisible", "Is Adorner Visible", true)]
 
-[ToolkitSample(id: nameof(AdornersInfoBadgeSample), "Adorner w/ InfoBadge", description: "A sample for showing how add an infobadge to a component via an Adorner.")]
+[ToolkitSample(id: nameof(AdornersInfoBadgeSample), "InfoBadge w/ Adorner", description: "A sample for showing how add an infobadge to a component via an Adorner.")]
 public sealed partial class AdornersInfoBadgeSample : Page
 {
     public AdornersInfoBadgeSample()
