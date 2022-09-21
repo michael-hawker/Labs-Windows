@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.WinUI;
+
 #if WINAPPSDK
 using CommunityToolkit.WinUI.UI;
 using CommunityToolkit.WinUI.UI.Helpers;
@@ -89,14 +91,30 @@ public partial class AdornerLayer : Canvas
         var adornerLayerOrTopMostElement = adornedElement.FindAscendant<FrameworkElement>((element) =>
         {
             lastElement = element;
-            // TODO: Stop in ScrollViewer?
             if (element is AdornerLayer)
             {
                 return true;
             }
+            else if (element is ScrollViewer scoller)
+            {
+                // TODO: This doesn't work 🙁 - While we have easy access to this Grid, it is outside the ScrollContentPresenter
+                // Therefore it doesn't scroll along with the content and the adorner is effectively in absolute position floating above
+                // the scrolling content. Going to investigate how this behaves in WPF before thinking of next approach... Maybe we
+                // need to try manipulating the ScrollContentPresenter content???
+
+                // TODO: Use BreadthFirst Search w/ Depth Limited?
+                var child = element.FindDescendant<Grid>();
+
+                if (child != null)
+                {
+                    lastElement = child;
+                    return true;
+                }
+            }
             else
             {
-                var child = element.FindChild<AdornerLayer>();
+                // TODO: Use BreadthFirst Search w/ Depth Limited?
+                var child = element.FindDescendant<AdornerLayer>();
 
                 if (child != null)
                 {
@@ -108,24 +126,32 @@ public partial class AdornerLayer : Canvas
             return false;
         }) ?? lastElement;
 
-        if (lastElement is AdornerLayer)
+        // Check cases where we may have found a child that we want to use instead of the element returned by search.
+        if (lastElement is AdornerLayer ||
+            (adornerLayerOrTopMostElement is ScrollViewer a&& lastElement is Grid))
         {
             adornerLayerOrTopMostElement = lastElement;
         }
 
         if (adornerLayerOrTopMostElement is AdornerLayer layer)
         {
+            // If we just have an adorner layer now, we're done!
             return layer;
         }
         else
         {
+            // Note: We probably don't need any of this experimental code, as most ScrollViewers (except the Root one)
+            //       have a Grid that we should be able to inject into. We still may want this for the Root ScrollViewer
+            //       and see if we can manipulate it's inner border if we don't find a Grid within it's first couple layers...
+            //       We may have better luck manipulating the Border than the Content of the ScrollViewer itself???
+
             // Inject AdornerLayer
-            if (adornerLayerOrTopMostElement is ScrollViewer scroller) // TODO: Switch?
+            /*if (adornerLayerOrTopMostElement is ScrollViewer scroller) // TODO: Switch?
             {
                 var adornerLayer = new AdornerLayer();
 
                 // Preserve existing content
-                var content = scroller.Content as UIElement;
+                var content = scroller.Content as UIElement;*/
 
                 /*if (content is FrameworkElement fe)
                 {
@@ -161,13 +187,15 @@ public partial class AdornerLayer : Canvas
                 
                 // TODO: Need to understand how to reparent content, above doesn't work...
 
-                return adornerLayer;
-            }
-            else if (adornerLayerOrTopMostElement is Grid grid) 
+                /*return adornerLayer;
+            }*/
+            
+            // Grid seems like the easiest place for us to inject AdornerLayers automatically.
+            if (adornerLayerOrTopMostElement is Grid grid) 
             {
                 var adornerLayer = new AdornerLayer();
 
-                // TODO: Handle if grid changes?
+                // TODO: Handle if grid row/columns change.
                 Grid.SetRowSpan(adornerLayer, grid.RowDefinitions.Count);
                 Grid.SetColumnSpan(adornerLayer, grid.ColumnDefinitions.Count);
                 grid.Children.Add(adornerLayer);

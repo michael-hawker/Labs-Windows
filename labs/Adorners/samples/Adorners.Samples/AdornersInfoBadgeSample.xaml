@@ -8,22 +8,17 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 
-    <Grid>
-        <StackPanel Spacing="16">
-            <Button>
-                <SymbolIcon HorizontalAlignment="Center"
-                            Symbol="Mail" />
-                <labs:AdornerLayer.Xaml>
-                    <muxc:InfoBadge Margin="-4"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    IsHitTestVisible="False"
-                                    Opacity="0.9"
-                                    Visibility="{x:Bind IsAdornerVisible, Mode=OneWay}"
-                                    Value="5" />
-                </labs:AdornerLayer.Xaml>
-            </Button>
-        </StackPanel>
-        <labs:AdornerLayer />
-    </Grid>
+    <Button>
+        <SymbolIcon HorizontalAlignment="Center"
+                    Symbol="Mail" />
+        <labs:AdornerLayer.Xaml>
+            <muxc:InfoBadge Margin="-4"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            IsHitTestVisible="False"
+                            Opacity="0.9"
+                            Visibility="{x:Bind IsAdornerVisible, Mode=OneWay}"
+                            Value="5" />
+        </labs:AdornerLayer.Xaml>
+    </Button>
 </Page>
