@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Helpers.Internals;
 using CommunityToolkit.WinUI.Predicates;
 
 namespace CommunityToolkit.Labs.WinUI;
@@ -9,6 +11,8 @@ namespace CommunityToolkit.Labs.WinUI;
 /// <inheritdoc cref="FrameworkElementExtensions"/>
 public static partial class FrameworkElementExtensions
 {
+    const int MaxDefaultSearchDepth = 256;
+
     /// <summary>
     /// Find the first child of type <see cref="FrameworkElement"/> with a given name, using a depth-first search.
     /// </summary>
@@ -20,7 +24,23 @@ public static partial class FrameworkElementExtensions
     {
         PredicateByName predicateByName = new(name, comparisonType);
 
-        return FindChild<FrameworkElement, PredicateByName>(element, ref predicateByName);
+        return FindChild<FrameworkElement, PredicateByName>(element, ref predicateByName, SearchType.DepthFirst);
+    }
+
+    /// <summary>
+    /// Find the first child of type <see cref="FrameworkElement"/> with a given name.
+    /// </summary>
+    /// <param name="element">The root element.</param>
+    /// <param name="name">The name of the element to look for.</param>
+    /// <param name="comparisonType">The comparison type to use to match <paramref name="name"/>.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
+    /// <returns>The child that was found, or <see langword="null"/>.</returns>
+    public static FrameworkElement? FindChild(this FrameworkElement element, string name, StringComparison comparisonType, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
+    {
+        PredicateByName predicateByName = new(name, comparisonType);
+
+        return FindChild<FrameworkElement, PredicateByName>(element, ref predicateByName, searchType, maxDepth);
     }
 
     /// <summary>
@@ -34,7 +54,23 @@ public static partial class FrameworkElementExtensions
     {
         PredicateByAny<T> predicateByAny = default;
 
-        return FindChild<T, PredicateByAny<T>>(element, ref predicateByAny);
+        return FindChild<T, PredicateByAny<T>>(element, ref predicateByAny, SearchType.DepthFirst);
+    }
+
+    /// <summary>
+    /// Find the first child element of a given type.
+    /// </summary>
+    /// <typeparam name="T">The type of elements to match.</typeparam>
+    /// <param name="element">The root element.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
+    /// <returns>The child that was found, or <see langword="null"/>.</returns>
+    public static T? FindChild<T>(this FrameworkElement element, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
+        where T : notnull, FrameworkElement
+    {
+        PredicateByAny<T> predicateByAny = default;
+
+        return FindChild<T, PredicateByAny<T>>(element, ref predicateByAny, searchType, maxDepth);
     }
 
     /// <summary>
@@ -47,7 +83,22 @@ public static partial class FrameworkElementExtensions
     {
         PredicateByType predicateByType = new(type);
 
-        return FindChild<FrameworkElement, PredicateByType>(element, ref predicateByType);
+        return FindChild<FrameworkElement, PredicateByType>(element, ref predicateByType, SearchType.DepthFirst);
+    }
+
+    /// <summary>
+    /// Find the first child element of a given type.
+    /// </summary>
+    /// <param name="element">The root element.</param>
+    /// <param name="type">The type of element to match.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
+    /// <returns>The child that was found, or <see langword="null"/>.</returns>
+    public static FrameworkElement? FindChild(this FrameworkElement element, Type type, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
+    {
+        PredicateByType predicateByType = new(type);
+
+        return FindChild<FrameworkElement, PredicateByType>(element, ref predicateByType, searchType, maxDepth);
     }
 
     /// <summary>
@@ -62,7 +113,24 @@ public static partial class FrameworkElementExtensions
     {
         PredicateByFunc<T> predicateByFunc = new(predicate);
 
-        return FindChild<T, PredicateByFunc<T>>(element, ref predicateByFunc);
+        return FindChild<T, PredicateByFunc<T>>(element, ref predicateByFunc, SearchType.DepthFirst);
+    }
+
+    /// <summary>
+    /// Find the first child element matching a given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of elements to match.</typeparam>
+    /// <param name="element">The root element.</param>
+    /// <param name="predicate">The predicate to use to match the child nodes.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
+    /// <returns>The child that was found, or <see langword="null"/>.</returns>
+    public static T? FindChild<T>(this FrameworkElement element, Func<T, bool> predicate, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
+        where T : notnull, FrameworkElement
+    {
+        PredicateByFunc<T> predicateByFunc = new(predicate);
+
+        return FindChild<T, PredicateByFunc<T>>(element, ref predicateByFunc, searchType, maxDepth);
     }
 
     /// <summary>
@@ -79,158 +147,260 @@ public static partial class FrameworkElementExtensions
     {
         PredicateByFunc<T, TState> predicateByFunc = new(state, predicate);
 
-        return FindChild<T, PredicateByFunc<T, TState>>(element, ref predicateByFunc);
+        return FindChild<T, PredicateByFunc<T, TState>>(element, ref predicateByFunc, SearchType.DepthFirst);
     }
 
     /// <summary>
-    /// Find the first child element matching a given predicate, using a depth-first search.
+    /// Find the first child element matching a given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of elements to match.</typeparam>
+    /// <typeparam name="TState">The type of state to use when matching nodes.</typeparam>
+    /// <param name="element">The root element.</param>
+    /// <param name="state">The state to give as input to <paramref name="predicate"/>.</param>
+    /// <param name="predicate">The predicate to use to match the child nodes.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
+    /// <returns>The child that was found, or <see langword="null"/>.</returns>
+    public static T? FindChild<T, TState>(this FrameworkElement element, TState state, Func<T, TState, bool> predicate, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
+        where T : notnull, FrameworkElement
+    {
+        PredicateByFunc<T, TState> predicateByFunc = new(state, predicate);
+
+        return FindChild<T, PredicateByFunc<T, TState>>(element, ref predicateByFunc, searchType, maxDepth);
+    }
+
+    /// <summary>
+    /// Find the first child element matching a given predicate.
     /// </summary>
     /// <typeparam name="T">The type of elements to match.</typeparam>
     /// <typeparam name="TPredicate">The type of predicate in use.</typeparam>
     /// <param name="element">The root element.</param>
     /// <param name="predicate">The predicate to use to match the child nodes.</param>
+    /// <param name="searchType">Type of search to perform, breadth or depth first.</param>
+    /// <param name="maxDepth">Maximum depth to search, default is <see cref="MaxDefaultSearchDepth"/>.</param>
     /// <returns>The child that was found, or <see langword="null"/>.</returns>
-    private static T? FindChild<T, TPredicate>(this FrameworkElement element, ref TPredicate predicate)
+    private static T? FindChild<T, TPredicate>(this FrameworkElement element, ref TPredicate predicate, SearchType searchType, int maxDepth = MaxDefaultSearchDepth)
         where T : notnull, FrameworkElement
         where TPredicate : struct, IPredicate<T>
     {
-        // Jump label to manually optimize the tail recursive paths for elements with a single
-        // child by just overwriting the current element and jumping back to the start of the
-        // method. This avoids a recursive call and one stack frame every time.
-        Start:
-
-        if (element is Panel panel)
+        static T? FindChildWithDepthFirstSearch(FrameworkElement element, ref TPredicate predicate, int maxDepth, int currentDepth)
         {
-            foreach (UIElement child in panel.Children)
+            // Jump label to manually optimize the tail recursive paths for elements with a single
+            // child by just overwriting the current element and jumping back to the start of the
+            // method. This avoids a recursive call and one stack frame every time.
+            Start:
+
+            // TODO: We could slightly optimize the callstack here by checking before we do the recursion...
+            if (currentDepth == maxDepth)
             {
-                if (child is not FrameworkElement current)
+                return null;
+            }
+
+            if (element is Panel panel)
+            {
+                foreach (UIElement child in panel.Children)
                 {
-                    continue;
+                    if (child is not FrameworkElement current)
+                    {
+                        continue;
+                    }
+
+                    if (child is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    if (currentDepth + 1 < maxDepth)
+                    {
+                        T? descendant = FindChildWithDepthFirstSearch(current, ref predicate, maxDepth, currentDepth + 1);
+
+                        if (descendant is not null)
+                        {
+                            return descendant;
+                        }
+                    }
                 }
+            }
+            else if (element is ItemsControl itemsControl)
+            {
+                foreach (object item in itemsControl.Items)
+                {
+                    if (item is not FrameworkElement current)
+                    {
+                        continue;
+                    }
+
+                    if (item is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    if (currentDepth + 1 < maxDepth)
+                    {
+                        T? descendant = FindChildWithDepthFirstSearch(current, ref predicate, maxDepth, currentDepth + 1);
+
+                        if (descendant is not null)
+                        {
+                            return descendant;
+                        }
+                    }
+                }
+            }
+            else if (element is ContentControl contentControl)
+            {
+                if (contentControl.Content is FrameworkElement content)
+                {
+                    if (content is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    element = content;
+
+                    currentDepth++;
+                    goto Start;
+                }
+            }
+            else if (element is Border border)
+            {
+                if (border.Child is FrameworkElement child)
+                {
+                    if (child is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    element = child;
+
+                    currentDepth++;
+                    goto Start;
+                }
+            }
+            else if (element is ContentPresenter contentPresenter)
+            {
+                // Sometimes ContentPresenter is used in control templates instead of ContentControl,
+                // therefore we should still check if its Content is a matching FrameworkElement instance.
+                // This also makes this work for SwitchPresenter.
+                if (contentPresenter.Content is FrameworkElement content)
+                {
+                    if (content is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    element = content;
+
+                    currentDepth++;
+                    goto Start;
+                }
+            }
+            else if (element is Viewbox viewbox)
+            {
+                if (viewbox.Child is FrameworkElement child)
+                {
+                    if (child is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    element = child;
+
+                    currentDepth++;
+                    goto Start;
+                }
+            }
+            else if (element is UserControl userControl)
+            {
+                // We put UserControl right before the slower reflection fallback path as
+                // this type is less likely to be used compared to the other ones above.
+                if (userControl.Content is FrameworkElement content)
+                {
+                    if (content is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    element = content;
+
+                    currentDepth++;
+                    goto Start;
+                }
+            }
+            else if (element.GetContentControl() is FrameworkElement containedControl)
+            {
+                if (containedControl is T result && predicate.Match(result))
+                {
+                    return result;
+                }
+
+                element = containedControl;
+
+                currentDepth++;
+                goto Start;
+            }
+
+            return null;
+        }
+
+        // Breadth-first search, with iterative implementation and pooled local stack
+        /*static T? FindChildWithBreadthFirstSearch(FrameworkElement element, ref TPredicate predicate)
+        {
+            // We're using a pooled buffer writer to amortize allocations for the temporary collection of children
+            // to visit for each level. The underlying array is deliberately just of type object and not DependencyObject
+            // to reduce the number of generic instantiations and allow the rented arrays to be reused more.
+            using ArrayPoolBufferWriter<object> bufferWriter = ArrayPoolBufferWriter<object>.Create();
+
+            int childrenCount = VisualTreeHelper.GetChildrenCount(element);
+
+            // Add the top level children
+            for (int i = 0; i < childrenCount; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(element, i);
 
                 if (child is T result && predicate.Match(result))
                 {
                     return result;
                 }
 
-                T? descendant = FindChild<T, TPredicate>(current, ref predicate);
-
-                if (descendant is not null)
-                {
-                    return descendant;
-                }
+                bufferWriter.Add(child);
             }
-        }
-        else if (element is ItemsControl itemsControl)
-        {
-            foreach (object item in itemsControl.Items)
+
+            // Explore each depth level
+            for (int i = 0; i < bufferWriter.Count; i++)
             {
-                if (item is not FrameworkElement current)
-                {
-                    continue;
-                }
+                DependencyObject parent = (DependencyObject)bufferWriter[i];
 
-                if (item is T result && predicate.Match(result))
-                {
-                    return result;
-                }
+                childrenCount = VisualTreeHelper.GetChildrenCount(parent);
 
-                T? descendant = FindChild<T, TPredicate>(current, ref predicate);
-
-                if (descendant is not null)
+                for (int j = 0; j < childrenCount; j++)
                 {
-                    return descendant;
+                    DependencyObject child = VisualTreeHelper.GetChild(parent, j);
+
+                    if (child is T result && predicate.Match(result))
+                    {
+                        return result;
+                    }
+
+                    bufferWriter.Add(child);
                 }
             }
-        }
-        else if (element is ContentControl contentControl)
+
+            return null;
+        }*/
+
+        static T? ThrowArgumentOutOfRangeExceptionForInvalidSearchType()
         {
-            if (contentControl.Content is FrameworkElement content)
-            {
-                if (content is T result && predicate.Match(result))
-                {
-                    return result;
-                }
-
-                element = content;
-
-                goto Start;
-            }
+            throw new ArgumentOutOfRangeException(nameof(searchType), "The input search type is not valid");
         }
-        else if (element is Border border)
+
+        // TODO: Check maxdepth is greater than or equal to 1.
+
+        return searchType switch
         {
-            if (border.Child is FrameworkElement child)
-            {
-                if (child is T result && predicate.Match(result))
-                {
-                    return result;
-                }
-
-                element = child;
-
-                goto Start;
-            }
-        }
-        else if (element is ContentPresenter contentPresenter)
-        {
-            // Sometimes ContentPresenter is used in control templates instead of ContentControl,
-            // therefore we should still check if its Content is a matching FrameworkElement instance.
-            // This also makes this work for SwitchPresenter.
-            if (contentPresenter.Content is FrameworkElement content)
-            {
-                if (content is T result && predicate.Match(result))
-                {
-                    return result;
-                }
-
-                element = content;
-
-                goto Start;
-            }
-        }
-        else if (element is Viewbox viewbox)
-        {
-            if (viewbox.Child is FrameworkElement child)
-            {
-                if (child is T result && predicate.Match(result))
-                {
-                    return result;
-                }
-
-                element = child;
-
-                goto Start;
-            }
-        }
-        else if (element is UserControl userControl)
-        {
-            // We put UserControl right before the slower reflection fallback path as
-            // this type is less likely to be used compared to the other ones above.
-            if (userControl.Content is FrameworkElement content)
-            {
-                if (content is T result && predicate.Match(result))
-                {
-                    return result;
-                }
-
-                element = content;
-
-                goto Start;
-            }
-        }
-        else if (element.GetContentControl() is FrameworkElement containedControl)
-        {
-            if (containedControl is T result && predicate.Match(result))
-            {
-                return result;
-            }
-
-            element = containedControl;
-
-            goto Start;
-        }
-
-        return null;
+            SearchType.DepthFirst => FindChildWithDepthFirstSearch(element, ref predicate, maxDepth, 0),
+            SearchType.BreadthFirst => ThrowArgumentOutOfRangeExceptionForInvalidSearchType(), //FindChildWithBreadthFirstSearch(element, ref predicate),
+            _ => ThrowArgumentOutOfRangeExceptionForInvalidSearchType()
+        };
     }
 
     /// <summary>
