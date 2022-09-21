@@ -1,4 +1,4 @@
-<!--  Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE file in the project root for more information.  -->
+﻿<!--  Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE file in the project root for more information.  -->
 <Page x:Class="AdornersExperiment.Samples.AdornersInfoBadgeSample"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -11,22 +11,35 @@
     <Grid>
         <StackPanel Spacing="16">
             <Button>
-                <SymbolIcon Symbol="Mail" HorizontalAlignment="Center"/>
-                <!-- TODO: Insert InfoBadge component via Adorner -->
+                <SymbolIcon HorizontalAlignment="Center"
+                            Symbol="Mail" />
                 <labs:AdornerLayer.Xaml>
-                    <muxc:InfoBadge Value="5" />
+                    <muxc:InfoBadge Margin="-4"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    IsHitTestVisible="False"
+                                    Opacity="0.9"
+                                    Visibility="{x:Bind IsAdornerVisible, Mode=OneWay}"
+                                    Value="5" />
                 </labs:AdornerLayer.Xaml>
             </Button>
             <Button>
-                <muxc:InfoBadge Value="5"/>
+                <muxc:InfoBadge Value="5" />
             </Button>
-            <Button HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="100" Height="75">
-                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <SymbolIcon Symbol="Mail" HorizontalAlignment="Center"/>
-                    <muxc:InfoBadge Value="5" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            <Button Width="100"
+                    Height="75"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+                    <SymbolIcon HorizontalAlignment="Center"
+                                Symbol="Mail" />
+                    <muxc:InfoBadge HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Value="5" />
                 </Grid>
             </Button>
         </StackPanel>
-        <labs:AdornerLayer/>
+        <labs:AdornerLayer />
     </Grid>
 </Page>

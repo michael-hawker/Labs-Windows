@@ -184,11 +184,20 @@ public partial class AdornerLayer : Canvas
     {
         // Add adorner XAML content to the Adorner Layer
 
+        var border = new Border()
+        {
+            Child = adorner,
+            Width = adornedElement.ActualWidth, // TODO: Register/tie to size of element better for changes.
+            Height = adornedElement.ActualHeight,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
+        };
+
         var coord = layer.CoordinatesTo(adornedElement);
 
-        Canvas.SetLeft(adorner, coord.X);
-        Canvas.SetTop(adorner, coord.Y);
+        Canvas.SetLeft(border, coord.X);
+        Canvas.SetTop(border, coord.Y);
 
-        layer.Children.Add(adorner);
+        layer.Children.Add(border);
     }
 }
