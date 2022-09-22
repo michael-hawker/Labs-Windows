@@ -10,7 +10,6 @@ using CommunityToolkit.WinUI.UI.Helpers;
 #else
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
-using Windows.UI.WebUI;
 #endif
 
 namespace CommunityToolkit.Labs.WinUI;
@@ -140,6 +139,15 @@ public partial class AdornerLayer : Canvas
                 var adornerLayer = new AdornerLayer();
 
                 var content = scroller.Content as FrameworkElement;
+
+                // Extra code for RootScrollViewer TODO: Can we detect this better?
+                if (scroller.Parent == null)
+                {
+                    //// XamlMarkupHelper.UnloadObject doesn't work here (throws an invalid value exception) does content need a name?
+                    // TODO: Figure out this scenario?
+                    throw new NotImplementedException("RootScrollViewer attachment isn't supported, add a AdornerDecorator or ScrollViewer manually to the top-level of your application.");
+                }
+
                 scroller.Content = null;
 
                 var layerContainer = new Grid()
