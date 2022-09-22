@@ -33,7 +33,7 @@ public partial class AdornerLayer : Canvas
     public static readonly DependencyProperty XamlProperty =
         DependencyProperty.RegisterAttached("Xaml", typeof(UIElement), typeof(AdornerLayer), new PropertyMetadata(null, OnXamlPropertyChanged));
 
-    private static void OnXamlPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    private static async void OnXamlPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
     {
         if (dependencyObject is FrameworkElement fe)
         {
@@ -43,7 +43,7 @@ public partial class AdornerLayer : Canvas
             }
             else if (args.NewValue is UIElement adorner)
             {
-                var layer = GetAdornerLayer(fe);
+                var layer = await GetAdornerLayerAsync(fe);
 
                 if (layer is not null)
                 {
@@ -55,13 +55,13 @@ public partial class AdornerLayer : Canvas
         }
     }
 
-    private static void XamlPropertyFrameworkElement_Loaded(object sender, RoutedEventArgs e)
+    private static async void XamlPropertyFrameworkElement_Loaded(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement fe)
         {
             fe.Loaded -= XamlPropertyFrameworkElement_Loaded;
 
-            var layer = GetAdornerLayer(fe);
+            var layer = await GetAdornerLayerAsync(fe);
 
             if (layer is not null)
             {
@@ -70,22 +70,15 @@ public partial class AdornerLayer : Canvas
         }
     }
 
-    public static AdornerLayer? GetAdornerLayer(FrameworkElement adornedElement)
+    /// <summary>
+    /// Retrieves the closest (or creates an) <see cref="AdornerLayer"/> for the given element. If awaited, the retrieved adorner layer is guaranteed to be loaded. This is to assist adorners with being able to be positioned in relation to the loaded element.
+    /// There may be multiple <see cref="AdornerLayer"/>s within an application, as each <see cref="ScrollViewer"/> should have one to enable relational scrolling along content that may be outside of the viewport.
+    /// </summary>
+    /// <param name="adornedElement">Element to adorn.</param>
+    /// <returns>Loaded <see cref="AdornerLayer"/> responsible for that element.</returns>
+    public static async Task<AdornerLayer?> GetAdornerLayerAsync(FrameworkElement adornedElement)
     {
         // 1. Find Adorner Layer for element or top-most element
-
-        // TODO: Is this needed or can the visual tree get us all the way there?
-        /*var parent = adornedElement.FindParent<FrameworkElement>((element) =>
-        {
-            // TODO: Stop in ScrollViewer?
-            if (element is AdornerLayer || element.Parent is null)
-            {
-                return true;
-            }
-
-            return false;
-        });*/
-
         FrameworkElement? lastElement = null;
         
         var adornerLayerOrTopMostElement = adornedElement.FindAscendant<FrameworkElement>((element) =>
@@ -97,107 +90,71 @@ public partial class AdornerLayer : Canvas
             }
             else if (element is ScrollViewer scoller)
             {
+                return true;
                 // TODO:
                 //   1. Look down for ScrollContentPresenter (return that)
                 //   2. Below where Grid code is now... Remove Content
                 //   3. Add 'AdornerDecorator' Panel (simple grid-ish thing)
                 //   4. Set content of AdornerDecorator to previously removed content
                 //   5. Return adorner layer of decorator.
-
-                // TODO: This doesn't work 🙁 - While we have easy access to this Grid, it is outside the ScrollContentPresenter
-                // Therefore it doesn't scroll along with the content and the adorner is effectively in absolute position floating above
-                // the scrolling content. Going to investigate how this behaves in WPF before thinking of next approach... Maybe we
-                // need to try manipulating the ScrollContentPresenter content???
-
-                // WPF indeed handles scrolling perfectly, so we need to resolve this insertion scenario into the ScrollContentPresenter
-
-                // TODO: Use BreadthFirst Search w/ Depth Limited?
-                var child = element.FindDescendant<Grid>();
-
-                if (child != null)
-                {
-                    lastElement = child;
-                    return true;
-                }
             }
-            else
+            // TODO: Need to figure out porting new DO toolkit helpers to Uno, only needed for custom adorner layer placement...
+            /*else
             {
                 // TODO: Use BreadthFirst Search w/ Depth Limited?
-                var child = element.FindDescendant<AdornerLayer>();
+                var child = element.FindFirstLevelDescendants<AdornerLayer>();
 
                 if (child != null)
                 {
                     lastElement = child;
                     return true;
                 }
-            }
+            }*/
 
             return false;
         }) ?? lastElement;
 
         // Check cases where we may have found a child that we want to use instead of the element returned by search.
-        if (lastElement is AdornerLayer ||
-            (adornerLayerOrTopMostElement is ScrollViewer a&& lastElement is Grid))
+        if (lastElement is AdornerLayer)
         {
             adornerLayerOrTopMostElement = lastElement;
         }
 
         if (adornerLayerOrTopMostElement is AdornerLayer layer)
         {
+            await layer.WaitUntilLoadedAsync();
+
             // If we just have an adorner layer now, we're done!
             return layer;
         }
         else
         {
-            // TODO: Need to be checking for ScrollContentPresenter... and try this code again?
+            // TODO: Windows.UI.Xaml.Internal.RootScrollViewer is a maybe different and what was causing issues before I looked for ScrollViewers along the way?
+            // It's an internal unexposed type, so maybe it inherits from ScrollViewer? Not sure yet, but might need to detect and
+            // do something different here?
 
-            // Inject AdornerLayer
-            /*if (adornerLayerOrTopMostElement is ScrollViewer scroller) // TODO: Switch?
+            // ScrollViewers need AdornerLayers so they can provide adorners that scroll with the adorned elements (as it worked in WPF).
+            // Note: ScrollViewers and the Window were the main AdornerLayer integration points in WPF.
+            if (adornerLayerOrTopMostElement is ScrollViewer scroller)
             {
                 var adornerLayer = new AdornerLayer();
 
-                // Preserve existing content
-                var content = scroller.Content as UIElement;*/
+                var content = scroller.Content as FrameworkElement;
+                scroller.Content = null;
 
-                /*if (content is FrameworkElement fe)
+                var layerContainer = new Grid()
                 {
-                    void Fe_Unloaded(object sender, RoutedEventArgs e)
-                    {
-                        fe.Unloaded -= Fe_Unloaded; // TODO: Temp
+                    Children = { content, adornerLayer } // Adorner last so it's 'on top'
+                };
 
-                        var layerContainer = new Grid();
+                scroller.Content = layerContainer;
 
-                        layerContainer.Children.Add(content); // TODO: This also fails...
-                        layerContainer.Children.Add(adornerLayer); // We want to add second so it's on top.
+                await adornerLayer.WaitUntilLoadedAsync();
 
-                        scroller.Content = layerContainer;
-                    }
-
-                    fe.Unloaded += Fe_Unloaded;
-                }*/
-
-                /*_ = scroller.OnDependencyPropertyChanged(ScrollViewer.ContentProperty, async (sender, dp) =>
-                {
-                    await CompositionTargetHelper.ExecuteAfterCompositionRenderingAsync(() =>
-                    {
-                        var layerContainer = new Grid();
-
-                        layerContainer.Children.Add(content); // TODO: It won't let us disconnect and reconnect this content easily, this is still detecting it attached to another element.
-                        layerContainer.Children.Add(adornerLayer); // We want to add second so it's on top.
-
-                        scroller.Content = layerContainer;
-                    });
-                });*/
-
-                //// scroller.Content = null;
-                
-                // TODO: Need to understand how to reparent content, above doesn't work...
-
-                /*return adornerLayer;
-            }*/
-            
-            // Grid seems like the easiest place for us to inject AdornerLayers automatically.
-            if (adornerLayerOrTopMostElement is Grid grid) 
+                return adornerLayer;
+            }
+            // Grid seems like the easiest place for us to inject AdornerLayers automatically at the top-level (if needed) - not sure how common this will be?
+            else if (adornerLayerOrTopMostElement is Grid grid) 
             {
                 var adornerLayer = new AdornerLayer();
 
@@ -205,6 +162,8 @@ public partial class AdornerLayer : Canvas
                 Grid.SetRowSpan(adornerLayer, grid.RowDefinitions.Count);
                 Grid.SetColumnSpan(adornerLayer, grid.ColumnDefinitions.Count);
                 grid.Children.Add(adornerLayer);
+
+                await adornerLayer.WaitUntilLoadedAsync();
 
                 return adornerLayer;
             }
