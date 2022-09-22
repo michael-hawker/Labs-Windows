@@ -34,6 +34,14 @@ You could try and incorporate a [`InfoBadge`](https://learn.microsoft.com/window
 
 It also by default gets confined to the perimeter of the button and clipped, as seen above.
 
+### With Adorners
+
 However, with an Adorner instead, you can abstract this behavior from the content of your control. You can even more easily place the notification outside the bounds of the original element, like so:
 
 > [!SAMPLE AdornersInfoBadgeSample]
+
+## Highlight Example
+
+Adorners can be used in a variety of scenarios. For instance, if you wanted to highlight an element and show it's alignment to other elements in a creativity app.
+
+> [!SAMPLE ElementHighlightAdornerSample]
