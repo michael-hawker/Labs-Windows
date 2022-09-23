@@ -1,4 +1,4 @@
-﻿<Page x:Class="AdornersExperiment.Samples.ElementHighlightAdornerSample"
+<Page x:Class="AdornersExperiment.Samples.ElementHighlightAdornerSample"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,25 +12,23 @@
                 Spacing="8">
         <Button Content="Test Button">
             <labs:AdornerLayer.Xaml>
-                <Canvas HorizontalAlignment="Stretch"
+                <Canvas x:Name="AdornerCanvas"
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Background="Cyan"
                         IsHitTestVisible="False"
                         Opacity="0.3"
-                        Visibility="{x:Bind IsAdornerVisible, Mode=OneWay}">
+                        Visibility="{x:Bind IsAdornerVisible, Mode=OneWay}"
+                        labs:FrameworkElementExtensions.EnableActualSizeBinding="True">
 
                     <!--  Horizontal Bound Lines  -->
-                    <Line X1="-10000" Y1="0" X2="10000" Y2="0" VerticalAlignment="Top" Stroke="Cyan" StrokeThickness="1" />
-                    <!--
-                        TODO: We need to set this Y value to be the height of the button... we may need to do custom adorner for this scenario? (Same for right and width.)
-                        
-                        Could also use ui:FrameworkElementExtensions.EnableActualSizeBinding, but need to 'abstract' across uwp/winui for usage here in labs.
-                    -->
-                    <Line X1="-10000" Y1="0" X2="10000" Y2="0" VerticalAlignment="Bottom" Stroke="Cyan" StrokeThickness="1" />
+                    <Line X1="-10000" Y1="0" X2="10000" Y2="0" Stroke="Cyan" StrokeThickness="1" />
+                    <!-- TODO: Can't use x:Bind due to Uno bug: https://github.com/unoplatform/uno/issues/7893 -->
+                    <Line X1="-10000" Y1="{Binding ElementName=AdornerCanvas, Path=(labs:FrameworkElementExtensions.ActualHeight)}" X2="10000" Y2="{Binding ElementName=AdornerCanvas, Path=(labs:FrameworkElementExtensions.ActualHeight)}" Stroke="Cyan" StrokeThickness="1" />
 
                     <!--  Vertical Bound Lines  -->
                     <Line X1="0" Y1="-10000" X2="0" Y2="10000" HorizontalAlignment="Left" Stroke="Cyan" StrokeThickness="1" />
-                    <Line X1="0" Y1="-10000" X2="0" Y2="10000" HorizontalAlignment="Right" Stroke="Cyan" StrokeThickness="1" />
+                    <Line X1="{Binding ElementName=AdornerCanvas, Path=(labs:FrameworkElementExtensions.ActualWidth)}" Y1="-10000" X2="{Binding ElementName=AdornerCanvas, Path=(labs:FrameworkElementExtensions.ActualWidth)}" Y2="10000" HorizontalAlignment="Right" Stroke="Cyan" StrokeThickness="1" />
                 </Canvas>
             </labs:AdornerLayer.Xaml>
         </Button>

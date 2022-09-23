@@ -840,7 +840,7 @@ public static partial class FrameworkElementExtensions
             {
                 if (attribute.AttributeType == typeof(ContentPropertyAttribute))
                 {
-                    string propertyName = (string)attribute.NamedArguments[0].TypedValue.Value;
+                    string propertyName = (string)attribute.NamedArguments[0].TypedValue.Value!;
                     PropertyInfo? propertyInfo = type.GetProperty(propertyName);
 
                     return propertyInfo?.GetValue(element) as UIElement;
