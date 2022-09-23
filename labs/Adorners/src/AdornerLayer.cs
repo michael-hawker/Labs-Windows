@@ -82,20 +82,19 @@ public partial class AdornerLayer : Canvas
         
         var adornerLayerOrTopMostElement = adornedElement.FindAscendant<FrameworkElement>((element) =>
         {
-            lastElement = element;
-            if (element is AdornerLayer) // TODO: Search also for new AdornerDecorator panel...
+            lastElement = element; // TODO: should this be after our if, does it matter?
+
+            if (element is AdornerDecorator)
+            {
+                return true;
+            }
+            else if (element is AdornerLayer)
             {
                 return true;
             }
             else if (element is ScrollViewer scoller)
             {
                 return true;
-                // TODO:
-                //   1. Look down for ScrollContentPresenter (return that)
-                //   2. Below where Grid code is now... Remove Content
-                //   3. Add 'AdornerDecorator' Panel (simple grid-ish thing)
-                //   4. Set content of AdornerDecorator to previously removed content
-                //   5. Return adorner layer of decorator.
             }
             // TODO: Need to figure out porting new DO toolkit helpers to Uno, only needed for custom adorner layer placement...
             /*else
@@ -114,12 +113,18 @@ public partial class AdornerLayer : Canvas
         }) ?? lastElement;
 
         // Check cases where we may have found a child that we want to use instead of the element returned by search.
-        if (lastElement is AdornerLayer)
+        if (lastElement is AdornerLayer || lastElement is AdornerDecorator)
         {
             adornerLayerOrTopMostElement = lastElement;
         }
 
-        if (adornerLayerOrTopMostElement is AdornerLayer layer)
+        if (adornerLayerOrTopMostElement is AdornerDecorator decorator)
+        {
+            await decorator.WaitUntilLoadedAsync();
+
+            return decorator.AdornerLayer;
+        }
+        else if (adornerLayerOrTopMostElement is AdornerLayer layer)
         {
             await layer.WaitUntilLoadedAsync();
 
@@ -136,8 +141,6 @@ public partial class AdornerLayer : Canvas
             // Note: ScrollViewers and the Window were the main AdornerLayer integration points in WPF.
             if (adornerLayerOrTopMostElement is ScrollViewer scroller)
             {
-                var adornerLayer = new AdornerLayer();
-
                 var content = scroller.Content as FrameworkElement;
 
                 // Extra code for RootScrollViewer TODO: Can we detect this better?
@@ -150,20 +153,21 @@ public partial class AdornerLayer : Canvas
 
                 scroller.Content = null;
 
-                var layerContainer = new Grid()
+                var layerContainer = new AdornerDecorator()
                 {
-                    Children = { content, adornerLayer } // Adorner last so it's 'on top'
+                    Child = content!,
                 };
 
                 scroller.Content = layerContainer;
 
-                await adornerLayer.WaitUntilLoadedAsync();
+                await layerContainer.WaitUntilLoadedAsync();
 
-                return adornerLayer;
+                return layerContainer.AdornerLayer;
             }
             // Grid seems like the easiest place for us to inject AdornerLayers automatically at the top-level (if needed) - not sure how common this will be?
             else if (adornerLayerOrTopMostElement is Grid grid) 
             {
+                // TODO: Not sure how we want to handle AdornerDecorator in this scenario...
                 var adornerLayer = new AdornerLayer();
 
                 // TODO: Handle if grid row/columns change.
