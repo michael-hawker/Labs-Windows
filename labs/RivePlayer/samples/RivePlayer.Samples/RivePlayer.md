@@ -6,7 +6,9 @@ keywords: RivePlayer, State Machine, Animation, Vector
 dev_langs:
   - csharp
 category: Animations
-subcategory: Input
+subcategory: Media
+labs-discussion: 0
+labs-issue: 0
 ---
 
 <!-- To know about all the available Markdown syntax, Check out https://docs.microsoft.com/contribute/markdown-reference -->

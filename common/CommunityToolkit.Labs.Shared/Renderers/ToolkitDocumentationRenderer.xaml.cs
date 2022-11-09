@@ -174,4 +174,12 @@ public sealed partial class ToolkitDocumentationRenderer : Page
             return $"Exception Encountered Loading file '{fileUri}':\n{e.Message}\n{e.StackTrace}";
         }
     }
+
+    public static Uri ToLabsUri(string path, int id) => new Uri($"https://github.com/CommunityToolkit/Labs-Windows/{path}/{id}");
+
+    public static Visibility IsIdValid(int id) => id switch
+    {
+        <= 0 => Visibility.Collapsed,
+        _ => Visibility.Visible,
+    };
 }
