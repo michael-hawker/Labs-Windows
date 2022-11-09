@@ -177,12 +177,14 @@
 
                 <PivotItem Header="XAML">
                     <ScrollViewer>
-                        <TextBlock Text="{x:Bind XamlCode, Mode=OneWay}" />
+                        <TextBlock wasm:IsTextSelectionEnabled="True"
+                                   Text="{x:Bind XamlCode, Mode=OneWay}" />
                     </ScrollViewer>
                 </PivotItem>
                 <PivotItem Header="C#">
                     <ScrollViewer>
-                        <TextBlock Text="{x:Bind CSharpCode, Mode=OneWay}" />
+                        <TextBlock wasm:IsTextSelectionEnabled="True"
+                                   Text="{x:Bind CSharpCode, Mode=OneWay}" />
                     </ScrollViewer>
                 </PivotItem>
             </Pivot>
