@@ -188,31 +188,6 @@ public sealed partial class ToolkitDocumentationRenderer : Page
         }
     }
 
-
-#if HAS_UNO
-    private void MarkdownTextBlock_LinkClicked(object sender, LinkClickedEventArgs e)
-    {
-        // No-op - TODO: See https://github.com/CommunityToolkit/Labs-Windows/issues/151
-    }
-#elif !HAS_UNO
-    private async void MarkdownTextBlock_LinkClicked(object sender, LinkClickedEventArgs e)
-    {
-        if (!Uri.IsWellFormedUriString(e.Link, UriKind.Absolute))
-        {
-            await new ContentDialog
-            {
-                Title = "Windows Community Toolkit Labs Sample App",
-                Content = $"Link {e.Link} was malformed.",
-                CloseButtonText = "Close",
-                XamlRoot = XamlRoot // TODO: For UWP this is only on 1903+
-            }.ShowAsync();
-        }
-        else
-        {
-            await Launcher.LaunchUriAsync(new Uri(e.Link));
-        }
-    }
-#endif
     public static Uri ToLabsUri(string path, int id) => new Uri($"https://github.com/CommunityToolkit/Labs-Windows/{path}/{id}");
 
     public static Visibility IsIdValid(int id) => id switch

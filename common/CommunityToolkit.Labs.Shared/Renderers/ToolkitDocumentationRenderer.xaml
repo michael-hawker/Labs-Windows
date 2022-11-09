@@ -18,7 +18,6 @@
         <DataTemplate x:Key="DocumentTemplate"
                       x:DataType="x:String">
             <renderer:MarkdownTextBlock Background="Transparent"
-                                        LinkClicked="MarkdownTextBlock_LinkClicked"
                                         Text="{Binding}"
                                         TextWrapping="WrapWholeWords" />
         </DataTemplate>
