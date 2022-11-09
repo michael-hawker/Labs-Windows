@@ -9,7 +9,7 @@ namespace CommunityToolkit.Labs.WinUI.Rive;
 /// </summary>
 internal partial class AnimationTimer
 {
-    private readonly RivePlayer rivePlayer;
+    private readonly WeakReference<RivePlayer> rivePlayerRef;
     private readonly TimeSpan timeSpanPerFrame;
 
     private bool _running = false;
@@ -20,7 +20,7 @@ internal partial class AnimationTimer
 
     public AnimationTimer(RivePlayer rivePlayer, double fps)
     {
-        this.rivePlayer = rivePlayer;
+        rivePlayerRef = new(rivePlayer);
         timeSpanPerFrame = TimeSpan.FromSeconds(1.0 / fps);
     }
 
@@ -54,12 +54,29 @@ internal partial class AnimationTimer
     {
         while (continuationToken == _invalLoopContinuationToken)
         {
-            if (!rivePlayer.IsLoaded)
+            if (!TryInvalidateRivePlayer())
             {
                 break;
             }
-            rivePlayer.InvalidateAnimation();
             await Task.Delay(timeSpanPerFrame);
         }
+    }
+
+    /// <summary>
+    /// Attempts to call InvalidateAnimation() on the RivePlayer reference.
+    /// </summary>
+    /// <returns>false if the invalidation loop should terminate.</returns>
+    private bool TryInvalidateRivePlayer()
+    {
+        if (!rivePlayerRef.TryGetTarget(out var rivePlayer))
+        {
+            return false;
+        }
+        if (!rivePlayer.IsLoaded)
+        {
+            return false;
+        }
+        rivePlayer.InvalidateAnimation();
+        return true;
     }
 }
