@@ -51,7 +51,8 @@ public partial class MarkdownTextBlock : Control
         Loaded += this.MarkdownTextBlock_Loaded;
     }
 
-    private void MarkdownTextBlock_Loaded(object sender, RoutedEventArgs e)
+    #nullable enable
+    private void MarkdownTextBlock_Loaded(object? sender, RoutedEventArgs e)
     {
         this.RegisterHtmlEventHandler("resize", HtmlElementResized);
 
