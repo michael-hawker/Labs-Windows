@@ -47,20 +47,20 @@ if (Test-Path -Path $generatedSolutionFilePath)
 $projects = [System.Collections.ArrayList]::new()
 
 # Common/Dependencies for shared infrastructure
-[void]$projects.Add(".\common\CommunityToolkit*\*.*proj")
+[void]$projects.Add(".\tooling\CommunityToolkit*\*.*proj")
 
 # App Head and Test Head
 if ($IncludeHeads -ne 'winappsdk')
 {
-    [void]$projects.Add(".\common\ProjectHeads\AllComponents\**\*.Uwp.csproj")
+    [void]$projects.Add(".\tooling\ProjectHeads\AllComponents\**\*.Uwp.csproj")
 }
 
 if ($IncludeHeads -ne 'uwp')
 {
-    [void]$projects.Add(".\common\ProjectHeads\AllComponents\**\*.WinAppSdk.csproj")
+    [void]$projects.Add(".\tooling\ProjectHeads\AllComponents\**\*.WinAppSdk.csproj")
 }
 
-[void]$projects.Add(".\common\ProjectHeads\AllComponents\**\*.Wasm.csproj")
+[void]$projects.Add(".\tooling\ProjectHeads\AllComponents\**\*.Wasm.csproj")
 
 # Individual projects
 [void]$projects.Add(".\components\**\src\*.csproj")
