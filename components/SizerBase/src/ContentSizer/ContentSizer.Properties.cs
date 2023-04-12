@@ -46,14 +46,18 @@ public partial class ContentSizer
         if (d is SizerBase splitterBase && e.NewValue is FrameworkElement element)
         {
             // TODO: For Auto ResizeDirection we might want to do detection logic (TBD) here first?
-            if (splitterBase.Orientation != Orientation.Horizontal && double.IsNaN(element.Width))
+            if (splitterBase.Orientation != Orientation.Horizontal
+                && double.IsNaN(element.Width)
+                && element.DesiredSize.Width > 0)
             {
                 // We need to set the Width or Height somewhere,
                 // as if it's NaN we won't be able to manipulate it.
                 element.Width = element.DesiredSize.Width;
             }
 
-            if (splitterBase.Orientation != Orientation.Vertical && double.IsNaN(element.Height))
+            if (splitterBase.Orientation != Orientation.Vertical
+                && double.IsNaN(element.Height)
+                && element.DesiredSize.Height > 0)
             {
                 element.Height = element.DesiredSize.Height;
             }

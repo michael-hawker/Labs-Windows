@@ -2,12 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Labs.WinUI;
+
 namespace CommunityToolkit.WinUI.Controls;
 
-// TODO: This will probably be a Control?
-public partial class DataColumn : ContentPresenter
+[TemplatePart(Name = nameof(PART_ColumnSizer), Type = typeof(ContentSizer))]
+public partial class DataColumn : ContentControl
 {
     private static GridLength StarLength = new GridLength(1, GridUnitType.Star);
+
+    private ContentSizer? PART_ColumnSizer;
 
     public GridLength DesiredWidth
     {
@@ -19,8 +23,20 @@ public partial class DataColumn : ContentPresenter
     public static readonly DependencyProperty DesiredWidthProperty =
         DependencyProperty.Register(nameof(DesiredWidth), typeof(GridLength), typeof(DataColumn), new PropertyMetadata(StarLength));
 
-    //public DataColumn()
-    //{
-    //    this.DefaultStyleKey = typeof(DataColumn);
-    //}
+    public DataColumn()
+    {
+        this.DefaultStyleKey = typeof(DataColumn);
+    }
+
+    protected override void OnApplyTemplate()
+    {
+        PART_ColumnSizer = GetTemplateChild(nameof(PART_ColumnSizer)) as ContentSizer;
+
+        if (PART_ColumnSizer != null)
+        {
+            PART_ColumnSizer.TargetControl = this;
+        }
+
+        base.OnApplyTemplate();
+    }
 }
