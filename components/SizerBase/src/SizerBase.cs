@@ -119,6 +119,9 @@ public abstract partial class SizerBase : Control
 #endif
         // Ensure we have the proper cursor value setup, as we can only set now for WinUI 3
         OnOrientationPropertyChanged(this, null!);
+
+        // Ensure we set the indicator visiblity
+        OnIsIndicatorVisiblePropertyChanged(this, null!);
     }
 
     private void SizerBase_Loaded(object sender, RoutedEventArgs e)

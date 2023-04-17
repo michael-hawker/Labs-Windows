@@ -90,10 +90,28 @@ public partial class SizerBase : Control
     public static readonly DependencyProperty OrientationProperty =
         DependencyProperty.Register(nameof(Orientation), typeof(Orientation), typeof(SizerBase), new PropertyMetadata(Orientation.Vertical, OnOrientationPropertyChanged));
 
+    /// <summary>
+    /// Gets or sets if the indicator is visible. If not visible, only the background and cursor will be shown on MouseOver or Pressed states.
+    /// </summary>
+    public bool IsIndicatorVisible
+    {
+        get { return (bool)GetValue(IsIndicatorVisibleProperty); }
+        set { SetValue(IsIndicatorVisibleProperty, value); }
+    }
+
+    /// <summary>
+    /// Identifies the <see cref="IsIndicatorVisible"/> dependency property.
+    /// </summary>
+    public static readonly DependencyProperty IsIndicatorVisibleProperty =
+        DependencyProperty.Register(nameof(IsIndicatorVisible), typeof(bool), typeof(SizerBase), new PropertyMetadata(true, OnIsIndicatorVisiblePropertyChanged));
+
+
     private static void OnOrientationPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is SizerBase gripper)
         {
+            VisualStateManager.GoToState(gripper, gripper.Orientation == Orientation.Vertical ? "Vertical" : "Horizontal", true);
+
             CursorEnum cursorByOrientation = gripper.Orientation == Orientation.Vertical ? CursorEnum.SizeWestEast : CursorEnum.SizeNorthSouth;
 
             // See if there's been a cursor override, otherwise we'll pick
@@ -128,6 +146,13 @@ public partial class SizerBase : Control
                 gripper.ProtectedCursor = InputSystemCursor.Create(cursorValue);
             }
 #endif
+        }
+    }
+    private static void OnIsIndicatorVisiblePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is SizerBase gripper)
+        {
+            VisualStateManager.GoToState(gripper, gripper.IsIndicatorVisible ? "Visible" : "Collapsed", true);
         }
     }
 }
