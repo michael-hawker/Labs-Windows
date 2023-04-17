@@ -14,8 +14,8 @@ namespace CommunityToolkit.Labs.WinUI;
 [TemplateVisualState(Name = PointerOverState, GroupName = CommonStates)]
 [TemplateVisualState(Name = PressedState, GroupName = CommonStates)]
 [TemplateVisualState(Name = DisabledState, GroupName = CommonStates)]
-[TemplateVisualState(Name = HorizontalState, GroupName = ThumbVisibilityStates)]
-[TemplateVisualState(Name = VerticalState, GroupName = ThumbVisibilityStates)]
+[TemplateVisualState(Name = HorizontalState, GroupName = OrientationStates)]
+[TemplateVisualState(Name = VerticalState, GroupName = OrientationStates)]
 [TemplateVisualState(Name = VisibleState, GroupName = ThumbVisibilityStates)]
 [TemplateVisualState(Name = CollapsedState, GroupName = ThumbVisibilityStates)]
 public abstract partial class SizerBase : Control
